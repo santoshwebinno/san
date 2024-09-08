@@ -1,0 +1,10 @@
+name = "ai-shop-assisstant"
+roles = ["frontend", "backend"]
+webhooks_path = "/webhooks"
+port = 3000
+
+[commands]
+dev = "pnpm dev"
+
+[hmr_server]
+http_paths = ["/ping"]
