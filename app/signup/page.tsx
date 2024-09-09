@@ -77,6 +77,34 @@ export default function Page() {
 
       fetchTaskIds();
 
+      // Fetch SupportEmail from Azure B2C
+    const fetchSupportEmail = async () => {
+      try {
+        const response = await fetch("/api/v1/storesupportemail", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            storeSupportEmail: formData.storeSupportEmail, // Passing the store URL to the API
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const supportEmail = data.supportEmail; // Assume API returns the SupportEmail field
+          
+          console.log("SupportEmail received and stored:", supportEmail);
+        } else {
+          console.error("Failed to fetch SupportEmail:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error fetching SupportEmail:", error);
+      }
+    };
+
+    fetchSupportEmail();
+
       // Remove 'authenticated' from the URL
       urlParams.delete("authenticated");
 
