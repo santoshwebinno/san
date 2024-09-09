@@ -1,5 +1,6 @@
 import Image from "next/image";
 import React from "react";
+import { FormDataType } from "../utils.signup";
 
 interface InfoBlockProps {
   label: string;
@@ -17,14 +18,7 @@ const InfoBlock: React.FC<InfoBlockProps> = ({ label, value }) => {
 };
 
 interface Step2CardGraphicProps {
-  formData: {
-    storeName?: string;
-    storeURL?: string;
-    email?: string;
-    fullName?: string;
-    eCommercePlatform?: string;
-    monthlyVisitors?: string;
-  };
+  formData: Partial<FormDataType>;
 }
 
 const Step2CardGraphic: React.FC<Step2CardGraphicProps> = ({ formData }) => {
@@ -32,7 +26,8 @@ const Step2CardGraphic: React.FC<Step2CardGraphicProps> = ({ formData }) => {
     storeName,
     storeURL,
     email,
-    fullName,
+    firstName,
+    lastName,
     eCommercePlatform,
     monthlyVisitors,
   } = formData;
@@ -42,7 +37,7 @@ const Step2CardGraphic: React.FC<Step2CardGraphicProps> = ({ formData }) => {
       <div className="flex flex-col justify-center py-10 w-full whitespace-nowrap bg-violet-400 rounded-xl">
         <div className="flex flex-col self-center text-xs font-semibold leading-loose text-violet-600">
           <div className="px-4 flex items-center justify-center text-xl bg-white  w-10 h-10 rounded-[50px]">
-            {fullName ? fullName[0].toUpperCase() : "N"}
+            {firstName ? firstName[0].toUpperCase() : "N"}
           </div>
         </div>
         <h1 className="mt-3 text-xl font-bold leading-none text-center text-white">
@@ -52,7 +47,7 @@ const Step2CardGraphic: React.FC<Step2CardGraphicProps> = ({ formData }) => {
       <div className="flex z-10 flex-col gap-1 self-center p-4 -mt-6 w-10/12 text-xs leading-loose bg-white rounded-xl shadow-sm">
         <InfoBlock label="Website Address" value={storeURL || "example.com"} />
         <InfoBlock label="Email" value={email || "example@example.com"} />
-        <InfoBlock label="Full Name" value={fullName || "Your Name"} />
+        <InfoBlock label="Full Name" value={`${firstName} ${lastName}`} />
         <InfoBlock label="Ecommerce" value={eCommercePlatform} />
         <InfoBlock label="Visitors" value={monthlyVisitors} />
         <div className="flex relative items-end justify-center gap-1 mt-5 max-w-full text-stone-300">

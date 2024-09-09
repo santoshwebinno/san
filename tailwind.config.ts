@@ -17,6 +17,7 @@ const config: Config = {
         black: {
           DEFAULT: "#000000",
           text: "#444444",
+          "1E": "#1E1E1E",
         },
         white: {
           DEFAULT: "#FFFFFF",

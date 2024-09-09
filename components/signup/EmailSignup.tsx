@@ -1,6 +1,7 @@
 // components/signup/EmailSignup.tsx
 import Image from "next/image";
 import { useState } from "react";
+import SingupHomeSvg from "./SingupHomeSvg";
 
 interface EmailSignupProps {
   onEmailSubmit: (email: string) => void;
@@ -16,13 +17,7 @@ export const EmailSignup: React.FC<EmailSignupProps> = ({ onEmailSubmit }) => {
 
   return (
     <div className="flex flex-col items-center justify-center px-4">
-      <Image
-        src="/images/signup/home.svg"
-        alt="Signup Graphic"
-        width={819}
-        height={300}
-        className="mb-8 object-contain"
-      />
+      <SingupHomeSvg className="mb-6" />
       <h1 className="text-2xl mb-4 font-semibold">
         Let&apos;s start with your email
       </h1>

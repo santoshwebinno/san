@@ -1,41 +1,127 @@
-import { ECommercePlatformType, HelpdeskPlatformType } from "./BusinessInformation";
+import {
+  ECommercePlatformType,
+  HelpdeskPlatformType,
+} from "./BusinessInformation";
 
 const isBrowser = typeof window !== "undefined";
 const EXPIRATION_TIME = 1000 * 60 * 60 * 24; // 24 hours in milliseconds
 
-export const errorMessages = {
-  eCommercePlatform: "Please select an E-Commerce platform.",
-  monthlyVisitors: "Please select a number of monthly visitors.",
-  productCategories: "Please select at least one product category.",
-  helpdeskPlatform: "Please select a helpdesk platform.",
-};
 
 const signupSteps = [
   {
     title: "Account Information",
-    subSteps: 2,
+    subSteps: 1,
     fields: [
-      ["firstName", "lastName"],
-      ["email", "password"],
+      [
+        {
+          name: "firstName",
+          required: true,
+          errorMessage: "First name is required.",
+        },
+        {
+          name: "lastName",
+          required: true,
+          errorMessage: "Last name is required.",
+        },
+      ],
+      // [
+      //   {
+      //     name: "email",
+      //     required: true,
+      //     errorMessage: "Email is required.",
+      //   },
+      //   {
+      //     name: "password",
+      //     required: true,
+      //     errorMessage: "Password is required.",
+      //   },
+      // ],
     ],
   },
   {
     title: "Business Information",
     subSteps: 7,
     fields: [
-      ["storeName", "storeURL", "storeSupportEmail"],
-      ["eCommercePlatform"],
-      ["monthlyVisitors"],
-      ["productCategories"],
-      ["brandTone"],
-      ["helpdeskPlatform"],
-      ["hearAboutUs"],
+      [
+        {
+          name: "storeName",
+          required: true,
+          errorMessage: "Store name is required.",
+        },
+        {
+          name: "storeURL",
+          required: true,
+          errorMessage: "Store URL is required.",
+        },
+        {
+          name: "storeSupportEmail",
+          required: true,
+          errorMessage: "Store support email is required.",
+        },
+      ],
+      [
+        {
+          name: "eCommercePlatform",
+          required: true,
+          errorMessage: "Please select an E-Commerce platform.",
+        },
+      ],
+      [
+        {
+          name: "monthlyVisitors",
+          required: true,
+          errorMessage: "Please select a number of monthly visitors.",
+        },
+      ],
+      [
+        {
+          name: "productCategories",
+          required: false,
+          errorMessage: "Please select at least one product category.",
+        },
+      ],
+      [
+        {
+          name: "brandTone",
+          required: false,
+          errorMessage: "Brand tone is required.",
+        },
+      ],
+      [
+        {
+          name: "helpdeskPlatform",
+          required: true,
+          errorMessage: "Please select a helpdesk platform.",
+        },
+      ],
+      [
+        {
+          name: "hearAboutUs",
+          required: false,
+          errorMessage: "Please tell us how you heard about us.",
+        },
+      ],
     ],
   },
   {
     title: "Norgai Setup",
     subSteps: 2,
-    fields: [["shopifyStore"], ["norgTagEnabled"]],
+    fields: [
+      [
+        {
+          name: "shopifyStore",
+          required: true,
+          errorMessage: "Shopify store information is required.",
+        },
+      ],
+      [
+        {
+          name: "norgTagEnabled",
+          required: false,
+          errorMessage: "Please indicate if Norg tag is enabled.",
+        },
+      ],
+    ],
   },
   {
     title: "Design and Launch",
@@ -43,6 +129,15 @@ const signupSteps = [
     fields: [[], [], []],
   },
 ];
+
+export const isEmpty = (value: any) => {
+  if (typeof value === "string") {
+    return !value || value.trim() === "";
+  } else if (Array.isArray(value)) {
+    return value.length === 0;
+  }
+  return !value;
+};
 
 const initialStepCallback = () => {
   if (!isBrowser) return 0;

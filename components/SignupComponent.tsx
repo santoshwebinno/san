@@ -9,7 +9,7 @@ import {
 } from "@/components/signup/StepIndicator";
 import {
   clearLocalStorage,
-  errorMessages,
+  isEmpty,
   signupSteps,
 } from "@/components/signup/utils.signup";
 import { Dispatch, SetStateAction, useState } from "react";
@@ -48,18 +48,15 @@ const SignupComponent = ({
     let isValid = true;
 
     for (const field of fieldsToValidate) {
-      if (
-        !formData[field] ||
-        (typeof formData[field] === "string" &&
-          formData[field].trim() === "") ||
-        (Array.isArray(formData[field]) && formData[field].length === 0)
-      ) {
-        newErrors[field] =
-          errorMessages[field as keyof typeof errorMessages] ||
-          `Please fill in the ${field
+      const fieldName = field.name;
+      if (field.required) {
+        if (isEmpty(formData[fieldName])) {
+          const defaultError = `Please fill in the ${fieldName
             .replace(/([A-Z])/g, " $1")
             .toLowerCase()} field.`;
-        isValid = false;
+          newErrors[fieldName] = field.errorMessage || defaultError;
+          isValid = false;
+        }
       }
     }
 
@@ -129,32 +126,33 @@ const SignupComponent = ({
             currentSubStep={currentSubStep}
           />
           <div className="space-x-4">
-            {currentStep === signupSteps.length &&
-            currentSubStep === signupSteps[signupSteps.length - 1].subSteps ? (
-              <a
-                href="/main"
-                className="px-4  border h-fit text-white rounded-md"
-              >
-                Return to Dashboard and Do It Later
-              </a>
-            ) : (
-              <>
-                {(currentStep > 1 || currentSubStep > 1) && (
-                  <button
-                    onClick={handleBack}
-                    className="px-4 py-2 border border-white/30 rounded-lg"
-                  >
-                    Back
-                  </button>
-                )}
-                <button
-                  onClick={handleNext}
-                  className="px-4 py-2 bg-white text-indigo hover:bg-white/90 rounded-lg"
+            {currentStep === 3 && currentSubStep === 1 ? null : 
+              currentStep === signupSteps.length && 
+              currentSubStep === signupSteps[signupSteps.length - 1].subSteps ? (
+                <a
+                  href="/main"
+                  className="px-4 border h-fit text-white rounded-md"
                 >
-                  Next
-                </button>
-              </>
-            )}
+                  Return to Dashboard and Do It Later
+                </a>
+              ) : (
+                <>
+                  {(currentStep > 1 || currentSubStep > 1) && (
+                    <button
+                      onClick={handleBack}
+                      className="px-4 py-2 border border-white/30 rounded-lg"
+                    >
+                      Back
+                    </button>
+                  )}
+                  <button
+                    onClick={handleNext}
+                    className="px-4 py-2 bg-white text-indigo hover:bg-white/90 rounded-lg"
+                  >
+                    Next
+                  </button>
+                </>
+              )}
           </div>
         </div>
       </div>
