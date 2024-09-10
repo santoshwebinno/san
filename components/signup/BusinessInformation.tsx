@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Step2CardGraphic from "./step2/Step2CardGraphic";
 import ECommerceSvg from "./step2/ECommerceSvg";
 import { FormDataType } from "./utils.signup";
+import { useEffect } from "react";
 
 const eCommercePlatforms = [
   "Shopify",
@@ -67,6 +68,35 @@ export function BusinessInformation({
   onInputChange: (name: string, value: string | string[] | boolean) => void;
   errors: Record<string, string>;
 }) {
+
+   // Function to search for Shopify store from storeURL
+   const searchShopifyStore = async (customDomain: string) => {
+    try {
+      const response = await fetch("/api/resolve-shop", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ customDomain }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        onInputChange("eCommercePlatform", 'Shopify');
+        onInputChange("shopifyStore", result.shop);
+      }
+    } catch (err) {
+    }
+  };
+
+  // Automatically trigger search if formData.storeURL is set
+  useEffect(() => {
+    if (subStep === 2 && formData.storeURL) {
+      searchShopifyStore(formData.storeURL);
+    }
+  }, [subStep, formData.storeURL]);
+
   return (
     <div className="grid md:grid-cols-2 gap-4 flex-grow w-full place-content-center md:min-h-96">
       <div
@@ -335,7 +365,7 @@ const renderStepGraphic = (subStep: number, formData: FormDataType) => {
     return null;
   }
 
-  const graphicFormData = {
+  const graphicFormData:any = {
     ...formData,
     eCommercePlatform:
       subStep === 1

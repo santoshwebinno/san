@@ -75,18 +75,18 @@ export default function Page() {
         }
       };
 
-      fetchTaskIds();
+      // fetchTaskIds();
 
       // Fetch SupportEmail from Azure B2C
     const fetchSupportEmail = async () => {
       try {
-        const response = await fetch("/api/v1/storesupportemail", {
+        const response = await fetch("/api/v1/storessupportemail", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            storeSupportEmail: formData.storeSupportEmail, // Passing the store URL to the API
+            supportEmail: formData.storeSupportEmail, // Passing the store URL to the API
           }),
         });
 

@@ -1,47 +1,70 @@
 import { NextResponse } from 'next/server';
+import jsdom from 'jsdom';
+const { JSDOM } = jsdom;
 
 // Utility to strip protocol from domain and resolve Shopify subdomain
 const stripProtocol = (url: string): string => {
   return url.replace(/^https?:\/\//, '').replace(/\/$/, ''); // Removes protocol and trailing slash
 };
 
-// Check if the .myshopify.com domain is valid
-const verifyMyShopifyDomain = async (shopifyDomain: string): Promise<boolean> => {
-  try {
-    const response = await fetch(`https://${shopifyDomain}`, {
-      method: 'HEAD',
-    });
-    // If we get a 200 response, it’s a valid Shopify store
-    return response.status === 200;
-  } catch (error) {
-    console.error(`Error verifying Shopify domain: ${shopifyDomain}`, error);
-    return false;
-  }
-};
-
-// First, check if the custom domain is a Shopify store by checking the headers
-const isShopifyStore = async (domain: string): Promise<boolean> => {
+// Fetch the HTML content from the domain
+const fetchHtml = async (domain: string): Promise<string | null> => {
   try {
     const sanitizedDomain = stripProtocol(domain);
     const response = await fetch(`https://${sanitizedDomain}`, {
-      method: 'HEAD',
+      method: 'GET',
     });
-
-    // Check if Shopify-specific headers exist, such as `x-shopify-stage` or `x-shopid`
-    const isShopify = response.headers.get('x-shopify-stage') || response.headers.get('x-shopid');
-
-    return !!isShopify; // Return true if it's a Shopify store
+    if (response.ok) {
+      return await response.text();
+    }
+    return null;
   } catch (error) {
-    console.error('Error detecting Shopify store:', error);
-    return false;
+    console.error('Error fetching HTML from domain:', error);
+    return null;
   }
 };
 
-// Derive the `.myshopify.com` domain from the custom domain
-const deriveMyShopifyDomain = (customDomain: string): string => {
-  const domainParts = stripProtocol(customDomain).split('.');
-  const shopName = domainParts[0]; // Assuming the shop name is the first part of the domain (e.g., "shopname.com")
-  return `${shopName}.myshopify.com`;
+// Extract the Shopify shop name from the HTML
+const extractShopifyData = (html: string): string | null => {
+  try {
+    const dom = new JSDOM(html);
+    const scripts: any = dom.window.document.querySelectorAll('script');
+
+    // Look for the script containing "Shopify.shop"
+    for (let script of scripts) {
+      if (script.textContent && script.textContent.includes('Shopify.shop')) {
+        const matches = script.textContent.match(/Shopify\.shop\s*=\s*["'](.*?)["']/);
+        if (matches) {
+          const fullShopDomain = matches[1]; // e.g., "superfeast.myshopify.com"
+          const shopName = fullShopDomain.split('.myshopify.com')[0]; // Extract shop name
+          return shopName; // Return just the shop name
+        }
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error('Error extracting Shopify data:', error);
+    return null;
+  }
+};
+
+// Search for any .myshopify.com domain in the entire page source
+const findMyShopifyDomainInPage = (html: string): string | null => {
+  try {
+    const regex = /([a-zA-Z0-9-]+)\.myshopify\.com/g; // Regex to match any myshopify.com domain
+    const matches = html.match(regex);
+    
+    if (matches && matches.length > 0) {
+      // Extract the shop name from the first match
+      const fullShopDomain = matches[0]; // e.g., "superfeast.myshopify.com"
+      const shopName = fullShopDomain.split('.myshopify.com')[0]; // Extract shop name
+      return shopName; // Return just the shop name
+    }
+    return null;
+  } catch (error) {
+    console.error('Error searching for .myshopify.com in page source:', error);
+    return null;
+  }
 };
 
 export async function POST(request: Request) {
@@ -53,21 +76,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Custom domain is required' }, { status: 400 });
     }
 
-    // First, check if the custom domain is a Shopify store
-    const isShopify = await isShopifyStore(customDomain);
+    // Fetch the HTML content of the custom domain
+    const html = await fetchHtml(customDomain);
 
-    if (isShopify) {
-      // Derive the .myshopify.com domain and verify if it's valid
-      const shopifyDomain = deriveMyShopifyDomain(customDomain);
-      const isValidShopifyDomain = await verifyMyShopifyDomain(shopifyDomain);
+    // Try to extract the Shopify.shop name from the HTML content
+    let shopifyShopName = html ? extractShopifyData(html) : null;
 
-      if (isValidShopifyDomain) {
-        return NextResponse.json({ shop: shopifyDomain });
-      } else {
-        return NextResponse.json({ error: 'Unable to verify the .myshopify.com domain' }, { status: 404 });
-      }
+    // If not found in the HTML, search for any .myshopify.com in the page source
+    if (!shopifyShopName && html) {
+      shopifyShopName = findMyShopifyDomainInPage(html);
+    }
+
+    if (shopifyShopName) {
+      return NextResponse.json({ shop: shopifyShopName });
     } else {
-      return NextResponse.json({ error: 'The domain is not a valid Shopify store' }, { status: 404 });
+      return NextResponse.json({ error: 'Shopify.shop not found in the domain' }, { status: 404 });
     }
 
   } catch (error) {

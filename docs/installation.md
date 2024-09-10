@@ -34,6 +34,8 @@ Before proceeding, your project needs to be associated with an app.
 ?  Which existing app is this for?
 ✔  ai-shop-assisstant (shopify.app.toml)
 
+
+npm run shopify app deploy
 ## 6 
 comment SHOPIFY_APP_URL: config.application_url, in next.config.mjs
 npm run dev
