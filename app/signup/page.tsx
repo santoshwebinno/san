@@ -8,6 +8,7 @@ import {
 } from "@/components/signup/utils.signup";
 import { Loader2Icon } from "lucide-react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const SignupComponent = dynamic(() => import("@/components/SignupComponent"), {
@@ -23,7 +24,7 @@ export default function Page() {
   const [formData, setFormData] = useState(initialFormDataCallback);
   const [currentStep, setCurrentStep] = useState(initialStepCallback);
   const [currentSubStep, setCurrentSubStep] = useState(initialSubStepCallback);
-
+  const router = useRouter();
   useEffect(() => {
     localStorage.setItem("currentStep", currentStep.toString());
     localStorage.setItem("currentSubStep", currentSubStep.toString());
@@ -139,6 +140,26 @@ export default function Page() {
       loadScript();
     }
   }, [formData.norgTagEnabled]);
+
+useEffect(() => {
+  if (formData.eCommercePlatform) {
+    const platform = formData.eCommercePlatform;
+        if (platform === "Magento") {
+      setFormData(prevFormData => ({
+        ...prevFormData,
+        eCommercePlatform: ""
+      }));
+      router.push("https://commercemarketplace.adobe.com/norgai-module-ai-sales-companion.html");
+    } else if (platform === "WooCommerce") {
+      setFormData(prevFormData => ({
+        ...prevFormData,
+        eCommercePlatform: ""
+      }));
+      router.push("https://www.norg.ai/product/woocommerce-ai-shopping-assistant");
+    }
+  }
+}, [formData.eCommercePlatform, router]);
+
 
   return (
     <SignupComponent
