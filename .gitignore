@@ -39,3 +39,4 @@ pnpm-lock.yaml
 package-lock.json
 shopify.app.toml
 sessions/
+node_modules/

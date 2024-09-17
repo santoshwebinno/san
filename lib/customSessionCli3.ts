@@ -4,11 +4,18 @@ import { on } from "stream";
 
 const { Pool } = pg;
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  user: "postgres",
+  host: "localhost",
+  database: "node_project",
+  password: "admin",
+  port: 5433
 });
+// const pool = new Pool({
+//   connectionString: process.env.DATABASE_URL || 'postgresql://postgres:admin@localhost:5432/nodePrject',
+//   ssl: {
+//     rejectUnauthorized: false,
+//   },
+// });
 export const checkClientExists = async (
   session: ShopifySession
 ): Promise<{ exists: boolean; userCreated?: boolean; secret_key?:string}> => {
@@ -101,7 +108,7 @@ export const createSessionTable = async () => {
       associatedUserEmailVerified BOOLEAN,
       sessionData JSONB,
       createdAt TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-      updatedAt TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+      updatedAt TIMESTAMPTZ  DEFAULT CURRENT_TIMESTAMP
     );
   `;
 
@@ -232,7 +239,7 @@ const deleteSession = async (id: string): Promise<boolean> => {
 };
 
 // Initialize the session table
-// createSessionTable();
+createSessionTable();
 
 const customSessionHandler = { storeSession, loadSession, deleteSession };
 

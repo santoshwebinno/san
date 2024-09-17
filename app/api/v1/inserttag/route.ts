@@ -42,7 +42,7 @@ export async function GET(req: Request) {
 
         // Check if the script URL contains your domain or pattern
         if (
-          scriptSrc.includes('5d27-203-220-141-137.ngrok-free.app') ||
+          scriptSrc.includes(`${process.env.SHOPIFY_APP_URL}`) ||
           scriptSrc.includes('norgcdnstorage.blob.core.windows.net') || // Add more domains/patterns if needed
           scriptSrc.includes('your-secure-server.com')
         ) {
@@ -59,7 +59,7 @@ export async function GET(req: Request) {
     const newScriptTag = {
       script_tag: {
         event: 'onload',
-        src: `https://5d27-203-220-141-137.ngrok-free.app/api/norgai-injector`, // Use the Ngrok URL
+        src: `${process.env.SHOPIFY_APP_URL}/api/norgai-injector`, // Use the Ngrok URL
       },
     };
 

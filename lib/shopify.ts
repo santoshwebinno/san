@@ -11,14 +11,15 @@ const shopify = shopifyApi({
   isEmbeddedApp: false,
   apiVersion: ApiVersion.July23,
   hostScheme: 'https',
-  logger: { level: 0 }, // Adjust logging level as needed
+  logger: { level: 0 },
+   // Adjust logging level as needed
 });
 
 // Register webhooks using the Web API adapter
 shopify.webhooks.addHandlers({
   APP_UNINSTALLED: {
     deliveryMethod: DeliveryMethod.Http,
-    callbackUrl: '/api/webhooks/app_uninstalled',
+    callbackUrl: `${process.env.SHOPIFY_APP_URL}/api/webhooks/app_uninstalled`,
     callback: appUninstallHandler,
   },
 });

@@ -17,11 +17,87 @@ export function NorgaiSetup({
   errors: Record<string, string>;
 }) {
   const [enabled, setEnabled] = useState(formData.norgTagEnabled);
+  const [shop, setShop] = useState(formData.storeURL);
+  const scriptCode = `<script type="text/javascript" id="your_a_vfPmulI=1_a..."></script>`;
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleToggle = () => {
+  const handleToggle = async () => {
     const newValue = !enabled;
     setEnabled(newValue);
+    const shop_val= shop;
+    setShop(shop_val);
     onInputChange("norgTagEnabled", newValue);
+    try {
+      const response = await fetch(`https://117f-2409-40d1-dd-4774-41c2-f2cb-d9db-6866.ngrok-free.app/api/dataSave/toggle-norg`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          enabled: newValue,
+          scriptCode,
+          shop: shop_val,
+         }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+  
+      const data = await response.json();
+      // Handle the API response data here if needed
+      console.log('API response:', data);
+  
+    } catch (error) {
+      console.error('Error toggling Norg tag:', error);
+      // Optionally, update UI or state based on error
+    }
+  };
+  
+  const handleInstall = async () => {
+    try {
+      const res = await fetch(`https://117f-2409-40d1-dd-4774-41c2-f2cb-d9db-6866.ngrok-free.app/api/check-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ shop: formData.shopifyStore }), // Send shop data in the body
+      });
+    
+      if (!res.ok) {
+        // Handle non-OK responses (errors)
+        let errorMessage = "An error occurred.";
+    
+        // Check if the response content type is JSON
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const errorData = await res.json();
+          errorMessage = errorData.message || "An error occurred.";
+        } else {
+          // If not JSON, log the raw HTML error response
+          const errorText = await res.text();
+          console.error("HTML error response:", errorText);
+        }
+    
+        setErrorMessage(errorMessage);
+        console.error(`Error: ${errorMessage}`);
+        return; // Exit early if there's an error
+      }
+    
+      // If successful, parse the JSON response
+      const data = await res.json();
+    
+      // Successful response
+      console.log('Session found, redirecting to install app.');
+      window.location.href = `/api/auth/offline?shop=${formData.shopifyStore}.myshopify.com`;
+    
+    } catch (error) {
+      console.error("Fetch error:", error);
+      setErrorMessage("An error occurred. Please try again.");
+    }
+    
+
+    
   };
   const renderSubStep = () => {
     switch (subStep) {
@@ -47,12 +123,17 @@ export function NorgaiSetup({
                   {errors.shopifyStore}
                 </p>
               )}
-              <a
-                href={`/api/auth/offline?shop=${formData.shopifyStore}.myshopify.com`}
-                className=" text-white border px-4 p-1 rounded-lg w-fit mt-4"
-              >
-                Validate Store
-              </a>
+                <button
+                  onClick={handleInstall}
+                  className="text-white border px-4 p-1 rounded-lg w-fit mt-4"
+                >
+                  Install App
+                </button>
+                {errorMessage && (
+                  <p className="text-red-500 mt-2">
+                    {errorMessage}
+                  </p>
+                )}
             </div>
           </>
         );
@@ -111,7 +192,7 @@ export function NorgaiSetup({
               it after your {"<body>"} tag:
             </p>
             <div className="bg-white px-2 py-2 rounded-lg flex items-center justify-between w-full mb-4 ">
-              <code className="text-sm text-black text-nowrap overflow-x-hidden overflow-ellipsis">
+              <code className="text-sm text-black text-nowrap overflow-x-hidden overflow-ellipsis gett_code">
                 {`<script type="text/javascript" id="your_a_vfPmulI=1_a...">`}
               </code>
 

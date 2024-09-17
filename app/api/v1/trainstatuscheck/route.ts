@@ -1,7 +1,9 @@
 import customSessionHandler from '@/lib/customSessionCli3';
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND_ENDPOINT = process.env.BACKEND_ENDPOINT || 'http://127.0.0.1:8001';
+// const BACKEND_ENDPOINT = process.env.BACKEND_ENDPOINT || 'http://127.0.0.1:8001';
+const BACKEND_ENDPOINT = process.env.BACKEND_ENDPOINT || '3000';
+
 
 export async function POST(req: NextRequest) {
   try {

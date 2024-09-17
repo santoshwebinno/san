@@ -1,0 +1,123 @@
+{% schema %}
+{
+  "name": "App Script Embed",
+  "target": "head"
+}
+{% endschema %}
+
+<script>
+  async function fetchData() {
+    
+    try {
+      const shopUrl = '{{ shop.url | escape }}';
+      const shopDomain = new URL(shopUrl).hostname;
+      const response = await fetch('https://cordless-lu-rational-comprehensive.trycloudflare.com/api/getData/data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ shop: shopDomain })
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! Status: ${response.status}. Response: ${errorText}`);
+      }
+
+      const { script_code } = await response.json();
+      if (!script_code) {
+        throw new Error('Invalid response: missing script_code');
+      }
+
+      // Inject script if not already in the document
+      if (!document.querySelector('script[data-norgai-injected]')) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = script_code;
+        const scriptElement = tempDiv.firstChild;
+
+        if (scriptElement) {
+          scriptElement.setAttribute('data-norgai-injected', 'true');
+          document.body.appendChild(scriptElement);
+          console.log('Script injected successfully');
+          const scriptContent = `
+            console.log('norgai-injector.js loaded');
+    
+            // Initialize window.norgai
+            window.norgai = window.norgai || {};
+            window.norgai.chatboost = {
+              mode: 'chat',
+              secret_key: 'your_secret_key_here',
+              environment: 'dev',
+              layout: {
+                chatbot_position: 'Bubble'
+              }
+            };
+            console.log('window.norgai initialized:', window.norgai);
+
+            // Inject CSS if not already injected
+            if (!document.querySelector('link[href="https://norgcdnstorage.blob.core.windows.net/norgcdn-container/plugin-dev/css/main.min.css?192847"]')) {
+              const cssLink = document.createElement('link');
+              cssLink.rel = 'stylesheet';
+              cssLink.href = 'https://norgcdnstorage.blob.core.windows.net/norgcdn-container/plugin-dev/css/main.min.css?192847';
+              document.head.appendChild(cssLink);
+              console.log('CSS injected');
+            } else {
+              console.log('CSS already injected');
+            }
+
+            // Inject root div if not present
+            if (!document.getElementById('react-root-magento')) {
+              const rootDiv = document.createElement('div');
+              rootDiv.id = 'react-root-magento';
+              Object.assign(rootDiv.style, {
+                position: 'absolute',
+                right: '20px',
+                bottom: '20px',
+                zIndex: '50'
+              });
+              document.body.appendChild(rootDiv);
+              console.log('Root div created with custom styles');
+            } else {
+              console.log('Root div already exists');
+            }
+
+            // Inject main JS if not already injected
+            if (!document.querySelector('script[src="https://norgcdnstorage.blob.core.windows.net/norgcdn-container/plugin-dev/js/main.min.js?750742"]')) {
+              const script = document.createElement('script');
+              script.src = 'https://norgcdnstorage.blob.core.windows.net/norgcdn-container/plugin-dev/js/main.min.js?750742';
+              document.body.appendChild(script);
+              console.log('Main JS injected');
+            } else {
+              console.log('Main JS already injected');
+            }
+          `;
+          injectScriptContent(scriptContent);  // Inject custom scriptContent after DOM is ready
+        } else {
+          throw new Error('Script element not found in the response');
+        }
+      } else {
+        console.log('Script already injected');
+      }
+
+    } catch (error) {
+      console.error('Error fetching or injecting script:', error);
+    }
+  }
+
+ 
+
+  // Function to inject scriptContent into the document
+  function injectScriptContent(content) {
+    const script = document.createElement('script');
+    script.textContent = content;
+    document.body.appendChild(script);  // Ensure document.body exists
+    console.log('Custom script content injected');
+  }
+
+  // Listen for DOMContentLoaded to ensure body is available
+  document.addEventListener('DOMContentLoaded', () => {
+    fetchData();  // Call fetchData once the DOM is ready
+    console.log('2222222')
+  });
+</script>
+

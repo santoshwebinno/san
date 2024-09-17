@@ -34,8 +34,9 @@ export async function GET(req: NextRequest) {
     } else {
       console.warn("No secret key provided.");
     }
-    if(userCreated==false){
+    if(userCreated===false){
       console.log('User already exists. Please log in or contact support');
+      console.log(userCreated)
     }
     const secretKey = await getSecretKeyFromMetafield(session);
 
