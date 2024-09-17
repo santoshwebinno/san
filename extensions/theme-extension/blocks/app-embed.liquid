@@ -11,6 +11,8 @@
     try {
       const shopUrl = '{{ shop.url | escape }}';
       const shopDomain = new URL(shopUrl).hostname;
+      // https://cordless-lu-rational-comprehensive.trycloudflare.com (Theme Extension URL)
+
       const response = await fetch('https://cordless-lu-rational-comprehensive.trycloudflare.com/api/getData/data', {
         method: 'POST',
         headers: {
